@@ -46,6 +46,7 @@ const RELATIVE = [
   ["'/nuxt/", "'./nuxt/"],
   ['"/media/', '"./media/'],
   ["'/media/", "'./media/"],
+  ["`/media/", "`./media/"],
   ['"/payload.json', '"./payload.json'],
   ["`/payload.json", "`./payload.json"],
 ];
@@ -106,6 +107,40 @@ for (const file of await walk(OUT)) {
   if (after !== before) await writeFile(file, after);
 }
 
+// — inline every image ————————————————————————————
+// <picture> only falls back between <source>s on format *support*, never on
+// load *failure*: if the host does not serve the AVIF the way the markup
+// promises, the browser commits to that source and the image breaks with a
+// perfectly good JPEG sitting unused beside it. Embedding the JPEG/PNG bytes
+// directly removes the negotiation, the extra requests and any path
+// resolution — the <source> variants all collapse to the same data URI.
+const mediaDir = path.join(OUT, "media");
+const dataUris = new Map();
+
+for (const file of await readdir(mediaDir)) {
+  const ext = path.extname(file);
+  if (ext !== ".jpg" && ext !== ".png") continue;
+  const mime = ext === ".png" ? "image/png" : "image/jpeg";
+  const bytes = await readFile(path.join(mediaDir, file));
+  dataUris.set(
+    file.slice(0, -ext.length),
+    `data:${mime};base64,${bytes.toString("base64")}`,
+  );
+}
+
+/** Every reference to a stem — in any format — becomes the one data URI. */
+function inlineMedia(text) {
+  return text.replace(
+    /(?:\.\/|\/)media\/([A-Za-z0-9-]+)\.(?:jpg|png|webp|avif)/g,
+    (whole, stem) => dataUris.get(stem) ?? whole,
+  );
+}
+
+for (const file of await walk(OUT)) {
+  if (path.extname(file) !== ".js") continue;
+  await writeFile(file, inlineMedia(await readFile(file, "utf8")));
+}
+
 // — the page fragment ————————————————————————————
 const src = await readFile(path.join(OUT, "index.html"), "utf8");
 const head = src.match(/<head>([\s\S]*?)<\/head>/)[1]
@@ -116,7 +151,7 @@ const body = src
   // Nuxt puts these on <body>; the skeleton owns <body>, so move them inward.
   .replace('<div id="__nuxt">', '<div id="__nuxt" class="grain antialiased">');
 
-const fragment = `${BASE_SHIM}\n${OVERRIDE}\n${head.trim()}\n${body.trim()}\n`;
+const fragment = inlineMedia(`${BASE_SHIM}\n${OVERRIDE}\n${head.trim()}\n${body.trim()}\n`);
 await writeFile(path.resolve(OUT, "../byvivelle.html"), fragment);
 
 // Local stand-in for the host skeleton, so the packaging can be tested.
@@ -132,6 +167,8 @@ img{max-width:100%}[hidden]{display:none!important}</style>
 const files = (await walk(OUT))
   .map((f) => path.relative(OUT, f))
   .filter((f) => !["index.html", "200.html", "404.html"].includes(f))
+  // Images are embedded in the page now, so they no longer ship as files.
+  .filter((f) => !f.startsWith("media/"))
   .sort();
 
 let bytes = 0;
