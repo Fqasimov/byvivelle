@@ -26,6 +26,9 @@
   --color-copper: #b98460; /* rose-gold foil */
   --color-copper-deep: #97663f;
   --color-copper-light: #d8b295;
+  /* Copper at text weight — 5.6:1 on paper, so it stays legible at the
+     12px uppercase of a button label, where copper-deep is marginal. */
+  --color-copper-ink: #855a2e;
   --color-seal: #b5533a; /* wax seal terracotta */
 
   /* — line ——————————————————————————————————— */

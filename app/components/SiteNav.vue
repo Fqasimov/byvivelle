@@ -172,7 +172,7 @@ onBeforeUnmount(() => {
             :href="INSTAGRAM_URL"
             external
             size="sm"
-            class="bg-paper text-ink hover:bg-paper/90"
+            variant="inverse"
           >
             {{ t.nav.cta }}
           </AppButton>

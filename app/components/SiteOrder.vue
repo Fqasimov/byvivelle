@@ -46,7 +46,7 @@ const { t } = useLanguage();
               <AppButton
                 :href="INSTAGRAM_URL"
                 external
-                class="bg-paper text-ink hover:bg-paper/90"
+                variant="inverse"
               >
                 {{ t.order.cta }}
               </AppButton>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cn } from "~/lib/utils";
 
-type Variant = "solid" | "outline" | "quiet";
+type Variant = "solid" | "outline" | "quiet" | "inverse";
 type Size = "sm" | "md";
 
 const props = withDefaults(
@@ -19,6 +19,8 @@ const BASE =
 
 const VARIANTS: Record<Variant, string> = {
   solid: "bg-ink text-paper hover:bg-ink-soft shadow-[0_1px_2px_rgb(60_40_24/0.18)]",
+  // For the dark bands: paper ground, deep-gold label.
+  inverse: "bg-paper text-copper-ink hover:bg-white shadow-[0_1px_2px_rgb(0_0_0/0.25)]",
   outline: "border border-line-strong text-ink hover:border-ink/45 hover:bg-ink/[0.03]",
   quiet: "text-ink-muted hover:text-ink",
 };
@@ -28,9 +30,23 @@ const SIZES: Record<Size, string> = {
   md: "h-12 px-7 text-[0.75rem]",
 };
 
+// Vue merges a parent's `class` onto the root element without consulting
+// tailwind-merge, so an override would sit *alongside* the variant's own
+// colour and the CSS source order — not the caller — would decide which wins.
+// That is how this button ended up white-on-white. Merging through cn()
+// ourselves restores last-one-wins.
+defineOptions({ inheritAttrs: false });
+const attrs = useAttrs();
+
 const classes = computed(() =>
-  cn(BASE, VARIANTS[props.variant], SIZES[props.size]),
+  cn(BASE, VARIANTS[props.variant], SIZES[props.size], attrs.class as string),
 );
+
+/** Everything except `class`, which is folded into `classes` above. */
+const passThrough = computed(() => {
+  const { class: _class, ...rest } = attrs;
+  return rest;
+});
 
 const tag = computed(() => (props.href ? "a" : "button"));
 </script>
@@ -38,6 +54,7 @@ const tag = computed(() => (props.href ? "a" : "button"));
 <template>
   <component
     :is="tag"
+    v-bind="passThrough"
     :href="props.href"
     :target="props.external ? '_blank' : undefined"
     :rel="props.external ? 'noreferrer noopener' : undefined"
