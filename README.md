@@ -3,12 +3,13 @@
 Marketing site for **byvivelle** — personal printed magazines made from customers'
 photographs and memories. Handmade in Baku, delivered worldwide.
 
-Next.js 16 · React 19 · Tailwind CSS v4 · Motion · Lenis. Fully static output.
+Nuxt 4 · Vue 3.5 · Tailwind CSS v4 · motion-v · Lenis. Static output, no runtime
+services.
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000
-npm run build
+npm run dev        # http://localhost:3000
+npm run generate   # static site → .output/public
 ```
 
 ---
@@ -18,7 +19,7 @@ npm run build
 The centrepiece is the collections section: five editions shown as circular
 covers, scattered rather than gridded. Tapping one opens the full album.
 
-The circle and the album panel share a `layoutId`, so the cover physically
+The circle and the album panel share a `layout-id`, so the cover physically
 *becomes* the album — it grows and un-rounds into the panel rather than a new
 box appearing over it. The panel's contents fade in a beat behind the morph,
 which is what stops the header and footer distorting while the shape changes.
@@ -29,18 +30,19 @@ swipe, the arrow buttons, the footer dots and the ← → keys all write to the 
 place. Escape closes, Tab is trapped in the dialog, focus moves in after the
 morph settles and returns to the card that opened it.
 
-Album content lives in `src/lib/albums.ts`; the prose for each one is in the
+Album content lives in `app/lib/albums.ts`; the prose for each one is in the
 dictionary (below), keyed by album id.
 
 ## Languages
 
 byvivelle sells in Russian and Azerbaijani and markets in English, so all three
-are first-class. `src/lib/i18n.tsx` holds the dictionary; the Russian and
-Azerbaijani trees are type-checked against the English one, so a missing or
-misspelled key fails the build.
+are first-class. `app/composables/useLanguage.ts` holds the dictionary; the
+Russian and Azerbaijani trees are type-checked against the English one, so a
+missing or misspelled key fails the build.
 
-Choice persists in `localStorage`, falls back to the browser locale, and renders
-English first so server and client markup agree.
+Language lives in `useState`, so it is shared across components and serialised
+through SSR. English renders first on both sides and a stored preference is
+applied after hydration, which keeps server and client markup identical.
 
 Display type is **Prata**, which has Cyrillic but no `latin-ext` — so
 Azerbaijani `ə ğ ş` fall through per-glyph to **Playfair Display**, sitting next
@@ -50,7 +52,7 @@ system font.
 
 ## Motion
 
-`src/lib/motion.ts` is the whole vocabulary — curves, durations and the shared
+`app/lib/motion.ts` is the whole vocabulary — curves, durations and the shared
 entrance variants. Some rules it encodes:
 
 - Nothing travels further than ~16px. Distance reads as cheap.
@@ -59,8 +61,8 @@ entrance variants. Some rules it encodes:
 - Only the album morph is a spring. Everything else is a duration.
 - `prefers-reduced-motion` disables Lenis, the parallax and the hover scales.
 
-Scroll reveals set `opacity: 0` inline, so a `<noscript>` rule in the layout
-unhides anything marked `data-reveal` when scripting is off.
+Scroll reveals set `opacity: 0` inline, so a `<noscript>` rule unhides anything
+marked `data-reveal` when scripting is off.
 
 ## Assets
 
@@ -70,23 +72,34 @@ in several cases burned-in marketing copy.
 
 `scripts/prepare-assets.mjs` turns those into web assets: it trims the
 letterbox, erases the pager badge by feathering a blurred patch of neighbouring
-background over it, and cuts editorial detail crops (a spread's polaroid
-cluster, the foil monogram on an envelope) that give each album real pages to
-leaf through. Crops are also chosen to exclude the burned-in carousel copy, so
-no frame on the site reads as a screenshot.
+background over it, cuts editorial detail crops (a spread's polaroid cluster,
+the foil monogram on an envelope) that give each album real pages to leaf
+through, and re-encodes everything to avif + webp + jpg. Crops are also chosen
+to exclude the burned-in carousel copy, so no frame on the site reads as a
+screenshot.
+
+Images go through `AppImage.vue`, a plain `<picture>` rather than a runtime
+image service — the album viewer only exists after a click, so a static export
+never prerenders optimised variants for it and those URLs would 404 on any
+static host.
+
+Fonts are self-hosted for the same reason: one less third-party request before
+text can paint, and no dependency on Google being reachable at build time.
 
 ```bash
 node scripts/prepare-assets.mjs   # regenerates public/media
+node scripts/fetch-fonts.mjs      # regenerates public/fonts + fonts.css
 node scripts/shoot.mjs            # screenshots each section for review
 ```
 
-`src/lib/media.json` is a generated manifest of every asset's real dimensions,
+`app/lib/media.json` is a generated manifest of every asset's real dimensions,
 so images are never sized by guesswork.
 
 ## Before launch
 
-- `INSTAGRAM_URL` in `src/lib/utils.ts` points at `instagram.com/byvivelle` —
+- `INSTAGRAM_URL` in `app/lib/utils.ts` points at `instagram.com/byvivelle` —
   confirm the handle.
-- `metadataBase` in `src/app/layout.tsx` is a placeholder domain.
+- `ogImage` in `app/app.vue` is a relative path; set a canonical site URL when
+  the domain is known.
 - Several detail crops come from low-resolution sources and are soft at large
   sizes. Re-shooting the products would lift the whole page.

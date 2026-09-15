@@ -259,6 +259,25 @@ async function run() {
     .toFile(path.join(OUT, "logo.png"));
 
   console.log("✓ logo");
+
+  // — modern formats ——————————————————————————————
+  // Emitted at build time rather than by a runtime image server: the album
+  // viewer is behind a click, so a static export never prerenders its
+  // variants and they would 404 on any plain static host. AppImage.vue picks
+  // these up through <picture>.
+  let encoded = 0;
+  for (const file of await readdir(OUT)) {
+    if (!/\.(jpg|png)$/.test(file)) continue;
+
+    const from = path.join(OUT, file);
+    const base = file.replace(/\.(jpg|png)$/, "");
+
+    await sharp(from).webp({ quality: 82 }).toFile(path.join(OUT, `${base}.webp`));
+    await sharp(from).avif({ quality: 62 }).toFile(path.join(OUT, `${base}.avif`));
+    encoded++;
+  }
+
+  console.log(`✓ ${encoded} images re-encoded to webp + avif`);
   console.log("\n" + (await readdir(OUT)).sort().join("\n"));
 }
 
