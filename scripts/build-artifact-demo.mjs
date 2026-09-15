@@ -31,6 +31,46 @@ const RENAMES = [
   ["`_payload.json`", "`payload.json`"],
 ];
 
+/**
+ * Nuxt emits root-absolute asset URLs ("/nuxt/…", "/media/…"), which only
+ * resolve if the page is served at the origin root. The artifact host
+ * documents published paths as relative, so make every reference relative and
+ * let a <base> shim decide what they are relative *to*.
+ */
+const RELATIVE = [
+  // Import-map values must be URL-like: a bare "nuxt/x.js" is rejected, so
+  // every rewritten reference gets an explicit "./" and resolves against
+  // the <base> below.
+  ['buildAssetsDir:"/nuxt/"', 'buildAssetsDir:"./nuxt/"'],
+  ['"/nuxt/', '"./nuxt/'],
+  ["'/nuxt/", "'./nuxt/"],
+  ['"/media/', '"./media/'],
+  ["'/media/", "'./media/"],
+  ['"/payload.json', '"./payload.json'],
+  ["`/payload.json", "`./payload.json"],
+];
+
+/**
+ * Resolves the relative asset URLs above against the directory the page is
+ * served from — root, "/some/path/", or "/some/path" with no trailing slash
+ * (a last segment with no file extension is treated as a directory). Must be
+ * the first thing in the fragment: <base> only affects elements parsed after
+ * it.
+ */
+const BASE_SHIM = `<script>
+(function () {
+  var p = location.pathname;
+  if (p.charAt(p.length - 1) !== "/") {
+    var cut = p.lastIndexOf("/");
+    // A last segment carrying a file extension is a file, not a directory.
+    p = p.slice(cut + 1).indexOf(".") !== -1 ? p.slice(0, cut + 1) : p + "/";
+  }
+  var b = document.createElement("base");
+  b.href = p;
+  document.head.prepend(b);
+})();
+<\/script>`;
+
 /** Unlayered, so it beats the host skeleton's own body rule. */
 const OVERRIDE = `<style>
 /* The artifact skeleton styles <body> unlayered, which outranks the site's
@@ -62,7 +102,7 @@ for (const file of await walk(OUT)) {
   if (!TEXT.has(path.extname(file))) continue;
   const before = await readFile(file, "utf8");
   let after = before;
-  for (const [a, b] of RENAMES) after = after.split(a).join(b);
+  for (const [a, b] of [...RENAMES, ...RELATIVE]) after = after.split(a).join(b);
   if (after !== before) await writeFile(file, after);
 }
 
@@ -76,7 +116,7 @@ const body = src
   // Nuxt puts these on <body>; the skeleton owns <body>, so move them inward.
   .replace('<div id="__nuxt">', '<div id="__nuxt" class="grain antialiased">');
 
-const fragment = `${OVERRIDE}\n${head.trim()}\n${body.trim()}\n`;
+const fragment = `${BASE_SHIM}\n${OVERRIDE}\n${head.trim()}\n${body.trim()}\n`;
 await writeFile(path.resolve(OUT, "../byvivelle.html"), fragment);
 
 // Local stand-in for the host skeleton, so the packaging can be tested.
