@@ -1,0 +1,192 @@
+{
+  "about-book-square": {
+    "src": "/media/about-book-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "about-book": {
+    "src": "/media/about-book.jpg",
+    "w": 1170,
+    "h": 1167
+  },
+  "archive-circle": {
+    "src": "/media/archive-circle.jpg",
+    "w": 585,
+    "h": 585
+  },
+  "archive-cover": {
+    "src": "/media/archive-cover.jpg",
+    "w": 374,
+    "h": 468
+  },
+  "archive-open": {
+    "src": "/media/archive-open.jpg",
+    "w": 913,
+    "h": 467
+  },
+  "archive-pages": {
+    "src": "/media/archive-pages.jpg",
+    "w": 445,
+    "h": 421
+  },
+  "birthday-circle": {
+    "src": "/media/birthday-circle.jpg",
+    "w": 445,
+    "h": 445
+  },
+  "birthday-collage": {
+    "src": "/media/birthday-collage.jpg",
+    "w": 468,
+    "h": 385
+  },
+  "birthday-covers-square": {
+    "src": "/media/birthday-covers-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "birthday-covers": {
+    "src": "/media/birthday-covers.jpg",
+    "w": 1170,
+    "h": 1171
+  },
+  "birthday-fashion": {
+    "src": "/media/birthday-fashion.jpg",
+    "w": 503,
+    "h": 525
+  },
+  "birthday-spread-square": {
+    "src": "/media/birthday-spread-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "birthday-spread": {
+    "src": "/media/birthday-spread.jpg",
+    "w": 1170,
+    "h": 1166
+  },
+  "craft-leather": {
+    "src": "/media/craft-leather.jpg",
+    "w": 293,
+    "h": 328
+  },
+  "examples-flatlay-square": {
+    "src": "/media/examples-flatlay-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "examples-flatlay": {
+    "src": "/media/examples-flatlay.jpg",
+    "w": 1170,
+    "h": 1169
+  },
+  "finishing-square": {
+    "src": "/media/finishing-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "finishing": {
+    "src": "/media/finishing.jpg",
+    "w": 1170,
+    "h": 1165
+  },
+  "gift-box-square": {
+    "src": "/media/gift-box-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "gift-box": {
+    "src": "/media/gift-box.jpg",
+    "w": 1170,
+    "h": 1147
+  },
+  "heart-detail": {
+    "src": "/media/heart-detail.jpg",
+    "w": 620,
+    "h": 538
+  },
+  "heart-grid-square": {
+    "src": "/media/heart-grid-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "heart-grid": {
+    "src": "/media/heart-grid.jpg",
+    "w": 1170,
+    "h": 1075
+  },
+  "keepsake-box": {
+    "src": "/media/keepsake-box.jpg",
+    "w": 442,
+    "h": 424
+  },
+  "keepsake-seal": {
+    "src": "/media/keepsake-seal.jpg",
+    "w": 363,
+    "h": 350
+  },
+  "keepsake-spread": {
+    "src": "/media/keepsake-spread.jpg",
+    "w": 585,
+    "h": 443
+  },
+  "logo": {
+    "src": "/media/logo.png",
+    "w": 560,
+    "h": 560
+  },
+  "love-list": {
+    "src": "/media/love-list.jpg",
+    "w": 386,
+    "h": 338
+  },
+  "love-polaroids": {
+    "src": "/media/love-polaroids.jpg",
+    "w": 456,
+    "h": 338
+  },
+  "love-spread-square": {
+    "src": "/media/love-spread-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "love-spread": {
+    "src": "/media/love-spread.jpg",
+    "w": 1170,
+    "h": 1165
+  },
+  "open-book-square": {
+    "src": "/media/open-book-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "open-book": {
+    "src": "/media/open-book.jpg",
+    "w": 1170,
+    "h": 1171
+  },
+  "process-book": {
+    "src": "/media/process-book.jpg",
+    "w": 511,
+    "h": 451
+  },
+  "wedding-cover-square": {
+    "src": "/media/wedding-cover-square.jpg",
+    "w": 900,
+    "h": 900
+  },
+  "wedding-cover": {
+    "src": "/media/wedding-cover.jpg",
+    "w": 1170,
+    "h": 1171
+  },
+  "wedding-rings": {
+    "src": "/media/wedding-rings.jpg",
+    "w": 281,
+    "h": 281
+  },
+  "wedding-title": {
+    "src": "/media/wedding-title.jpg",
+    "w": 749,
+    "h": 258
+  }
+}

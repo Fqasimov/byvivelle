@@ -1,0 +1,204 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+} from "motion/react";
+import { useT } from "@/lib/i18n";
+import { EASE, TRANSITION } from "@/lib/motion";
+import { INSTAGRAM_URL, cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { LanguageSwitcher } from "./language-switcher";
+
+export function Nav() {
+  const t = useT();
+  const { scrollY } = useScroll();
+  const [condensed, setCondensed] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // One threshold with a dead zone, so a nudge at the boundary can't flicker
+  // the bar on and off.
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setCondensed((prev) => (prev ? y > 40 : y > 96));
+  });
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
+  const links = [
+    { href: "#collections", label: t.nav.collections },
+    { href: "#process", label: t.nav.process },
+    { href: "#occasions", label: t.nav.occasions },
+    { href: "#order", label: t.nav.order },
+  ];
+
+  return (
+    <>
+      <motion.header
+        initial={{ y: -24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: EASE.outExpo, delay: 0.15 }}
+        className="fixed inset-x-0 top-0 z-50"
+      >
+        <div
+          className={cn(
+            "transition-[background-color,backdrop-filter,border-color] duration-500 ease-[var(--ease-out-quart)]",
+            condensed
+              ? "border-b border-line bg-paper/72 backdrop-blur-xl backdrop-saturate-150"
+              : "border-b border-transparent bg-transparent",
+          )}
+        >
+          <nav className="container-page flex items-center justify-between gap-6 py-4">
+            {/* — mark ——————————————————————————— */}
+            <a
+              href="#top"
+              className="group flex items-center gap-2.5"
+              aria-label="byvivelle — home"
+            >
+              <Image
+                src="/media/logo.png"
+                alt=""
+                width={72}
+                height={72}
+                priority
+                className={cn(
+                  "rounded-full ring-1 ring-ink/5 transition-[width,height] duration-500 ease-[var(--ease-out-quart)]",
+                  condensed ? "size-8" : "size-10",
+                )}
+              />
+              <span className="font-display text-[1.0625rem] tracking-[-0.01em] lowercase">
+                byvivelle
+              </span>
+            </a>
+
+            {/* — links ——————————————————————————— */}
+            <ul className="hidden items-center gap-1 lg:flex">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="group relative block px-3.5 py-2 font-sans text-[0.8125rem] text-ink-soft transition-colors duration-200 hover:text-ink"
+                  >
+                    {link.label}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-3.5 bottom-1 h-px origin-left scale-x-0 bg-copper transition-transform duration-300 ease-[var(--ease-out-expo)] group-hover:scale-x-100"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {/* — actions —————————————————————————— */}
+            <div className="flex items-center gap-2.5">
+              <LanguageSwitcher className="hidden sm:inline-flex" />
+
+              <Button
+                href={INSTAGRAM_URL}
+                external
+                size="sm"
+                className="hidden sm:inline-flex"
+              >
+                {t.nav.cta}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => setMenuOpen(true)}
+                aria-label={t.nav.menu}
+                aria-expanded={menuOpen}
+                className="flex size-9 items-center justify-center rounded-full border border-line-strong text-ink transition-colors duration-200 hover:bg-ink/[0.04] lg:hidden"
+              >
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="none" aria-hidden>
+                  <path d="M0 1h15M0 5.5h15M0 10h10" stroke="currentColor" strokeWidth="1.2" />
+                </svg>
+              </button>
+            </div>
+          </nav>
+        </div>
+      </motion.header>
+
+      {/* — mobile menu ——————————————————————————— */}
+      <AnimatePresence>
+        {menuOpen ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={TRANSITION.fade}
+            className="fixed inset-0 z-60 bg-ink text-paper lg:hidden"
+          >
+            <div className="container-page flex h-full flex-col">
+              <div className="flex items-center justify-between py-4">
+                <span className="font-display text-[1.0625rem] lowercase">
+                  byvivelle
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen(false)}
+                  aria-label={t.nav.close}
+                  className="flex size-9 items-center justify-center rounded-full border border-paper/20 transition-colors duration-200 hover:bg-paper/10"
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                    <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" strokeWidth="1.2" />
+                  </svg>
+                </button>
+              </div>
+
+              <ul className="flex flex-1 flex-col justify-center gap-1">
+                {links.map((link, i) => (
+                  <motion.li
+                    key={link.href}
+                    initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{
+                      duration: 0.5,
+                      ease: EASE.outExpo,
+                      delay: 0.06 + i * 0.05,
+                    }}
+                  >
+                    <a
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="block border-b border-paper/10 py-5 font-display text-[2rem] leading-none"
+                    >
+                      {link.label}
+                    </a>
+                  </motion.li>
+                ))}
+              </ul>
+
+              <div className="flex items-center justify-between gap-4 pb-10">
+                <LanguageSwitcher tone="dark" />
+                <Button
+                  href={INSTAGRAM_URL}
+                  external
+                  size="sm"
+                  className="bg-paper text-ink hover:bg-paper/90"
+                >
+                  {t.nav.cta}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </>
+  );
+}

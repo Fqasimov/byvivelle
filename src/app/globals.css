@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+/* ============================================================
+   byvivelle — design tokens
+   A warm, paper-led palette sampled from the brand collateral:
+   ivory stock, charcoal ink, rose-gold foil, wax-seal terracotta.
+   ============================================================ */
+
+@theme {
+  /* — surface ————————————————————————————————— */
+  --color-paper: #faf6f0; /* primary page stock */
+  --color-paper-warm: #f4ece1; /* alternating band */
+  --color-paper-deep: #ebdfd0; /* pressed / inset */
+  --color-sand: #ddcdb8;
+  --color-white: #ffffff;
+
+  /* — ink ———————————————————————————————————— */
+  --color-ink: #17120e;
+  --color-ink-soft: #3d342c;
+  --color-ink-muted: #7d7062;
+  --color-ink-faint: #a2988b;
+
+  /* — accent ————————————————————————————————— */
+  --color-copper: #b98460; /* rose-gold foil */
+  --color-copper-deep: #97663f;
+  --color-copper-light: #d8b295;
+  --color-seal: #b5533a; /* wax seal terracotta */
+
+  /* — line ——————————————————————————————————— */
+  --color-line: rgb(23 18 14 / 0.1);
+  --color-line-strong: rgb(23 18 14 / 0.18);
+
+  /* — type ——————————————————————————————————— */
+  /* Prata is the closest match to the Didone on the covers, but its glyph set
+     stops short of Azerbaijani. Playfair sits right behind it in the stack so
+     ə/ğ/ş fall back per-glyph between two high-contrast serifs — near
+     invisible, and it keeps RU/AZ headings from collapsing to a system font. */
+  --font-display: var(--font-prata), var(--font-playfair), "Didot", Georgia, serif;
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* — motion —————————————————————————————————
+     Short, confident curves. Nothing bounces without a reason. */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* — elevation ——————————————————————————————
+     Warm-tinted shadows; a neutral grey shadow on cream reads as dirt. */
+  --shadow-lift: 0 1px 2px rgb(60 40 24 / 0.05), 0 8px 24px -8px rgb(60 40 24 / 0.12);
+  --shadow-raise: 0 2px 4px rgb(60 40 24 / 0.06), 0 18px 44px -12px rgb(60 40 24 / 0.2);
+  --shadow-float: 0 4px 8px rgb(60 40 24 / 0.07), 0 40px 90px -20px rgb(60 40 24 / 0.32);
+
+  /* — rhythm —————————————————————————————————— */
+  --spacing-section: 7.5rem;
+}
+
+/* ============================================================
+   base
+   ============================================================ */
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* Shared with JS (album viewer) so the lock/unlock math agrees. */
+    --page-gutter: 1.25rem;
+  }
+
+  @media (width >= 48rem) {
+    :root {
+      --page-gutter: 2.5rem;
+    }
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* Lenis drives smooth scroll; native smooth would fight it. */
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "kern", "liga", "calt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  /* Display type is set optically: tight, high-contrast, never bold. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-copper-light);
+    color: var(--color-ink);
+  }
+
+  /* Visible only for keyboard users, but unmistakable when it is. */
+  :focus-visible {
+    outline: 2px solid var(--color-copper-deep);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  img {
+    /* Images are decorative-heavy here; never let one drag a layout wider. */
+    max-width: 100%;
+  }
+}
+
+/* ============================================================
+   utilities
+   ============================================================ */
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 82rem;
+  padding-inline: var(--page-gutter);
+}
+
+/* Small caps label used throughout the brand collateral. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+@utility rule-hairline {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-line-strong) 18%,
+    var(--color-line-strong) 82%,
+    transparent
+  );
+}
+
+/* Paper grain. Applied at very low opacity — felt, not seen. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ============================================================
+   keyframes
+   ============================================================ */
+
+@keyframes bv-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes bv-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================================
+   accessibility
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
